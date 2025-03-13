@@ -1,0 +1,32 @@
+{
+    "name": "com.justmax.uiextensionpackage",
+    "displayName": "UI Extension Package",
+    "version": "1.0.0",
+    "unity": "2021.3.0",
+    "description": "Extends Unity's UI elements and provides basic UI management system",
+    "dependencies": {
+      "com.unity.textmeshpro": "3.2.0"
+        },
+    "author": {
+        "name": "JustMax",
+        "url": "https://github.com/JustllMax"
+        },
+    "license": "MIT",
+    "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustllMax/UIExtensionPackage.git",
+    "keywords": [
+        "Unity3D",
+        "Unity",
+        "Unity UI",
+        "UI Extensions",
+        "uGUI"
+      ]},
+    "thirdPartyLicenses": {
+        "name": "Naughty Attributes",
+        "author": "Denis Rizov",
+        "license": "MIT",
+        "source": "https://github.com/dbrizov/NaughtyAttributes"
+    }
+        
+}
