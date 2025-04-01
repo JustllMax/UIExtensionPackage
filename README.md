@@ -1,3 +1,6 @@
+### Alpha Version
+Project is still a WIP, but can already be used.
+
 # Extension UI Package
 
 It improves basic Unity uGUI components and adds easily expandable system for managing UI windows and elements.
