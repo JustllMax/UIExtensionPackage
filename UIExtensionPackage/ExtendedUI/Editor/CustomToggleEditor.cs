@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.UI;
 
+// ReSharper disable CheckNamespace
 namespace UIExtensionPackage.ExtendedUI.Editor
 {
     
@@ -12,12 +13,12 @@ namespace UIExtensionPackage.ExtendedUI.Editor
     [CustomEditor(typeof(CustomToggle))]
     public class CustomToggleEditor : ToggleEditor
     {
-        private SerializedProperty targetGraphics;
-        private SerializedProperty displayData;
+        private SerializedProperty _targetGraphics;
+        private SerializedProperty _displayData;
         protected override void OnEnable()
         {
             base.OnEnable();
-            targetGraphics = serializedObject.FindProperty(nameof(targetGraphics));
+            _targetGraphics = serializedObject.FindProperty(nameof(_targetGraphics));
         }
 
         public override void OnInspectorGUI()
@@ -41,7 +42,7 @@ namespace UIExtensionPackage.ExtendedUI.Editor
             EditorGUILayout.LabelField("Custom Toggle Properties", EditorStyles.boldLabel);
             
             //Draw target graphics list
-            EditorGUILayout.PropertyField(targetGraphics, new GUIContent("Target Graphics"), true);
+            EditorGUILayout.PropertyField(_targetGraphics, new GUIContent("Target Graphics"), true);
 
             EditorGUILayout.Space();
 

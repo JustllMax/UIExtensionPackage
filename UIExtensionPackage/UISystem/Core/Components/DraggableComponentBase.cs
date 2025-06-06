@@ -12,19 +12,19 @@ namespace UIExtensionPackage.UISystem.Core.Components
     /// <remarks>Shouldn't be added to Object by hand</remarks>
     public abstract class DraggableComponentBase : MonoBehaviour, IDraggable
     {
+        
         [InfoBox( "Component shouldn't be attached to the object alone, it requires other classes to initialize it first.", EInfoBoxType.Warning), 
          ShowIf(nameof(ShowInfoBox))]
-        [Foldout("Debug")] [SerializeField, ReadOnly] private bool initialized = false;
+        [Foldout("Debug")] [SerializeField, ReadOnly] private bool _initialized;
         [Foldout("Debug")] [SerializeField, ReadOnly] protected Transform parentDuringDrag;
-        [Foldout("Debug")] [SerializeField, ReadOnly] protected bool m_resetPositionOnEnd = true;
-        [Foldout("Debug")] [SerializeField, ReadOnly] protected Vector3 startPosition;
-        [Foldout("Debug")] [SerializeField, ReadOnly] private Transform startParentTransform;
-        [Foldout("Debug")] [SerializeField, ReadOnly] private bool canBeDragged = true;
-        [Foldout("Debug")] [SerializeField, ReadOnly] private bool isDragged;
+        [Foldout("Debug")] [SerializeField, ReadOnly] protected bool mResetPositionOnEnd = true;
+        [Foldout("Debug")] [SerializeField, ReadOnly] private Transform _startParentTransform;
+        [Foldout("Debug")] [SerializeField, ReadOnly] private bool _canBeDragged = true;
+        [Foldout("Debug")] [SerializeField, ReadOnly] private bool _isDragged;
         
-        public virtual bool CanBeDragged => canBeDragged;
+        public virtual bool CanBeDragged => _canBeDragged;
 
-        public bool IsDragged => isDragged;
+        public bool IsDragged => _isDragged;
 
         public event Action<PointerEventData> OnDragBegin;
         public event Action<PointerEventData> OnDragging;
@@ -38,18 +38,18 @@ namespace UIExtensionPackage.UISystem.Core.Components
 
         public virtual void Init(Transform dragParent = null, bool resetPositionOnEnd = true)
         {
-            if(initialized) return;
-            initialized = true;
+            if(_initialized) return;
+            _initialized = true;
             if(dragParent) SetNewDragParent(parentDuringDrag);
-            m_resetPositionOnEnd = resetPositionOnEnd;
+            mResetPositionOnEnd = resetPositionOnEnd;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             if(!CanBeDragged) return;
-            isDragged = true;
+            _isDragged = true;
             HandleRegisterStartPosition();
-            startParentTransform = transform.parent;
+            _startParentTransform = transform.parent;
             transform.SetParent(parentDuringDrag);
             HandleDragBegin(eventData);
             OnDragBegin?.Invoke(eventData);
@@ -67,7 +67,7 @@ namespace UIExtensionPackage.UISystem.Core.Components
             if(!CanBeDragged) return;
             OnDragEnd?.Invoke(eventData);
             HandleOnDragEnd(eventData);
-            if(m_resetPositionOnEnd) ResetPosition();
+            if(mResetPositionOnEnd) ResetPosition();
         }
         
         /// <summary>
@@ -81,8 +81,8 @@ namespace UIExtensionPackage.UISystem.Core.Components
         /// </summary>
         protected void ResetPosition()
         {
-            isDragged = false;
-            transform.SetParent(startParentTransform, false);
+            _isDragged = false;
+            transform.SetParent(_startParentTransform, false);
             HandleResetPosition();
         }
 
@@ -92,9 +92,9 @@ namespace UIExtensionPackage.UISystem.Core.Components
         /// <param name="value"></param>
         public void SetCanBeDragged(bool value)
         {
-            if(canBeDragged && !value)
+            if(_canBeDragged && !value)
                 ResetPosition();
-            canBeDragged = value;
+            _canBeDragged = value;
         }
 
         /// <summary>

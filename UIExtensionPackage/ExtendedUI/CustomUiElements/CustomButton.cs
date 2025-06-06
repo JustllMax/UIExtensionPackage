@@ -1,11 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
 using UIExtensionPackage.ExtendedUI.Base;
 using UIExtensionPackage.ExtendedUI.Enums;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
 
 namespace UIExtensionPackage.ExtendedUI.CustomUIElements
 {
@@ -16,8 +13,8 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
     public class CustomButton : Button
     {
 
-        [SerializeField] private bool unselectAfterPressed = true;
-        [SerializeField] TargetGraphicData[] targetGraphics; 
+        [SerializeField] private bool _unselectAfterPressed = true;
+        [SerializeField] TargetGraphicData[] _targetGraphics; 
         
         // Cast interactable bool to ActiveState
         private ActiveState ActiveState =>interactable ? ActiveState.Enabled : ActiveState.Disabled;
@@ -51,7 +48,7 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
-            if (unselectAfterPressed)
+            if (_unselectAfterPressed)
             {
                 OnDeselect(eventData);
             }
@@ -66,22 +63,22 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         /// </summary>
         private void HandleVisuals(ActiveState activeState, InteractionState interactionState)
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].HandleVisuals(activeState, interactionState);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].HandleVisuals(activeState, interactionState);
         }
         
         
         /// <summary>
-        /// Sets transition for all <see cref="targetGraphics"/> driven from default button
+        /// Sets transition for all <see cref="_targetGraphics"/> driven from default button
         /// </summary>
         public void SetDefaultTransition()
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].SetTransition(transition);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetTransition(transition);
         }
         
         /// <summary>
-        /// Sets values driven from default button for <see cref="targetGraphics"/> by default button selected transition
+        /// Sets values driven from default button for <see cref="_targetGraphics"/> by selected transition
         /// </summary>
         public void SetDefaultSettings()
         {
@@ -106,8 +103,8 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         /// </summary>
         private void SetDefaultColors() 
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].SetColors(colors);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetColors(colors);
         }
 
         /// <summary>
@@ -115,8 +112,8 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         /// </summary>
         private void SetDefaultSprites() 
         {
-            for (int i = 0; i < targetGraphics.Length; i++) 
-                targetGraphics[i].SetSprites(spriteState);
+            for (int i = 0; i < _targetGraphics.Length; i++) 
+                _targetGraphics[i].SetSprites(spriteState);
         }
 
         /// <summary>
@@ -124,8 +121,8 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         /// </summary>
         private void SetDefaultAnimationTriggers()
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].SetAnimations(animationTriggers);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetAnimations(animationTriggers);
         }
     }
 }

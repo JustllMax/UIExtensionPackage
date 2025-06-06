@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NaughtyAttributes;
-using UIExtensionPackage.Core.Interfaces;
 using UIExtensionPackage.ExtendedUI.Extensions;
-using UIExtensionPackage.UISystem.Core.Generics;
+using UIExtensionPackage.UISystem.Core.Interfaces;
 using UnityEngine;
 
 namespace UIExtensionPackage.UISystem.UI.Windows
@@ -13,29 +12,46 @@ namespace UIExtensionPackage.UISystem.UI.Windows
     /// Class for managing windows and window stacks
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
-    public class UIWindowManager : SingletonMonobehaviour<UIWindowManager>, IShowHide
+    public class UIWindowManager : MonoBehaviour, IShowHide
     {
-        [Foldout("Config"),SerializeField] private List<UIWindow> allWindowsPrefabs;
-        [Foldout("Debug"), SerializeField, ReadOnly] private Transform windowsContainer;
-        [Foldout("Debug"), SerializeField, ReadOnly] private CanvasGroup canvasGroup;
-
+        [Foldout("Config"),SerializeField] private List<UIWindow> _allWindowsPrefabs;
+        [Foldout("Debug"), SerializeField, ReadOnly] private Transform _windowsContainer;
+        [Foldout("Debug"), SerializeField, ReadOnly] private CanvasGroup _canvasGroup;
+        
         /// <summary>
         /// All opened windows that are not in stack (root windows)
         /// Last index is the top windows stack
         /// </summary>
-        [Foldout("Debug"),SerializeField, ReadOnly] private List<WindowStack> windowStacks = new();
+        [Foldout("Debug"),SerializeField, ReadOnly] private List<WindowStack> _windowStacks = new();
         
-        private WindowStack TopStack => windowStacks.Count > 0 ? windowStacks[^1] : null;
+        private WindowStack TopStack => _windowStacks.Count > 0 ? _windowStacks[^1] : null;
         private readonly Dictionary<Type, UIWindow> _availableWindows = new();
 
-        public bool IsAnyMovableWindowOpen => windowStacks.Any(stack => stack.IsAnyMovableWindowOpen);
+        public bool IsAnyMovableWindowOpen => _windowStacks.Any(stack => stack.IsAnyMovableWindowOpen);
+        private static UIWindowManager _instance;
 
-        protected override void Awake()
+        public static UIWindowManager Instance
         {
-            base.Awake();
-            canvasGroup = GetComponent<CanvasGroup>();
+            get
+            {
+                if (!_instance) _instance = FindFirstObjectByType<UIWindowManager>();
+                // if (!_instance) _instance = FindObjectOfType<T>(); // Use this if on an older Unity version
+                return _instance;
+            }
+        }
+        protected  void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+            }
+            else if (_instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             BuildAvailableWindows();
-            windowsContainer = transform;
         }
     
         
@@ -46,7 +62,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         {
             _availableWindows.Clear();
             // Loop through assigned windows
-            foreach (UIWindow window in allWindowsPrefabs)
+            foreach (UIWindow window in _allWindowsPrefabs)
             {
                 if (!window)
                 {
@@ -103,14 +119,14 @@ namespace UIExtensionPackage.UISystem.UI.Windows
             }
 
             // Create window
-            UIWindow window = Instantiate(_availableWindows[windowType], windowsContainer);
+            UIWindow window = Instantiate(_availableWindows[windowType], _windowsContainer);
 
             // Check if stack ref is not set
             if (stackRef == null)
             {
                 // Create new stack and add it to the list
                 stackRef = new WindowStack();
-                windowStacks.Add(stackRef);
+                _windowStacks.Add(stackRef);
             }
             /*
             NOTE: In case of a need to have windows without canvas on it
@@ -146,10 +162,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public void CloseWindow<T>() where T : UIWindow
         {
             // Loop through all stacks
-            for (int stackSlot = 0; stackSlot < windowStacks.Count; stackSlot++)
+            for (int stackSlot = 0; stackSlot < _windowStacks.Count; stackSlot++)
             {
                 // Get window stack
-                WindowStack stack = windowStacks[stackSlot];
+                WindowStack stack = _windowStacks[stackSlot];
                 // Try to close window in the stack
                 stack.CloseWindowByType<T>();
                 if (stack.IsEmpty)
@@ -167,9 +183,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public void RefreshWindow<TWindowType>() where TWindowType : UIWindow
         {
             // Loop through all stacks
-            for (int i = 0; i < windowStacks.Count; i++)
+            for (int i = 0; i < _windowStacks.Count; i++)
             {
-                WindowStack stack = windowStacks[i];
+                WindowStack stack = _windowStacks[i];
                 stack.RefreshWindow<TWindowType>();
             }
         }
@@ -183,9 +199,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
             where TWindwoType : UIWindow
         {
             window = null;
-            for (int stackSlot = 0; stackSlot < windowStacks.Count; stackSlot++)
+            for (int stackSlot = 0; stackSlot < _windowStacks.Count; stackSlot++)
             {
-                WindowStack stack = windowStacks[stackSlot];
+                WindowStack stack = _windowStacks[stackSlot];
                 if(stack.IsEmpty) continue;
                 if (stack.TryGetOpenedWindow(out TWindwoType win))
                 {
@@ -202,10 +218,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// <param name="forceClose">Can be overriden to close all windows, no matter the type</param>
         public void CloseAllWindows(bool forceClose = false)
         {
-            for (int stackSlot = 0; stackSlot < windowStacks.Count; stackSlot++)
+            for (int stackSlot = 0; stackSlot < _windowStacks.Count; stackSlot++)
             {
                 // Get window stack
-                WindowStack stack = windowStacks[stackSlot];
+                WindowStack stack = _windowStacks[stackSlot];
                 
                 // Close all windows, no matter the type
                 if(forceClose) stack.CloseAllWindows();
@@ -226,7 +242,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// <remarks>Last index is a top stack</remarks>
         public void MoveWindowStackToLastIndex(WindowStack stack)
         {
-            windowStacks.Move(stack, windowStacks.Count - 1);
+            _windowStacks.Move(stack, _windowStacks.Count - 1);
             UpdateWindowStackIndexes();
         }
 
@@ -235,9 +251,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         private void UpdateWindowStackIndexes()
         {
-            for (int i = 0; i < windowStacks.Count; i++)
+            for (int i = 0; i < _windowStacks.Count; i++)
             {
-                windowStacks[i].StackIndex = i;
+                _windowStacks[i].StackIndex = i;
             }
         }
 
@@ -248,9 +264,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// This should never happen, it is only a precaution.</remarks>
         public void UpdateWindowStacksSortingOrders()
         {
-            for (int i = 0; i < windowStacks.Count; i++)
+            for (int i = 0; i < _windowStacks.Count; i++)
             {
-                windowStacks[i].UpdateStackSortingOrder();
+                _windowStacks[i].UpdateStackSortingOrder();
             }
         }
 
@@ -259,7 +275,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public int GetWindowStackIndex(WindowStack windowStack)
         {
-            return windowStacks.IndexOf(windowStack);
+            return _windowStacks.IndexOf(windowStack);
         }
 
         /// <summary>
@@ -269,17 +285,17 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         private bool TryClosingWindowFromTopStack()
         {
             // Return if there are no windows stacks
-            if (windowStacks.Count <= 0) return false;
+            if (_windowStacks.Count <= 0) return false;
 
             // Get top stack (last in the list)
             WindowStack topStack = TopStack;
             
-            while (topStack.IsEmpty && windowStacks.Count > 1)
+            while (topStack.IsEmpty && _windowStacks.Count > 1)
             {
                 // Remove stack from list 
-                windowStacks.Remove(topStack);
+                _windowStacks.Remove(topStack);
                 // Set new top stack
-                topStack = windowStacks[^1];
+                topStack = _windowStacks[^1];
                 // Move it to top in render queue
                 topStack.MoveToTop();
             }
@@ -295,8 +311,8 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void RemoveWindowStackFromList(WindowStack stack)
         {
-            windowStacks.Remove(stack);
-            if (windowStacks.IsNullOrEmpty()) WindowStack.SetDefaultSortingOrderValue();
+            _windowStacks.Remove(stack);
+            if (_windowStacks.IsNullOrEmpty()) WindowStack.SetDefaultSortingOrderValue();
         }
 
         /// <summary>
@@ -304,9 +320,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void ShowAllWindows()
         {
-            for (int stackSlot = 0; stackSlot < windowStacks.Count; stackSlot++)
+            for (int stackSlot = 0; stackSlot < _windowStacks.Count; stackSlot++)
             {
-                WindowStack stack = windowStacks[stackSlot];
+                WindowStack stack = _windowStacks[stackSlot];
                 stack.ShowAllWindows();
             }
         }
@@ -316,9 +332,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void HideAllWindows()
         {
-            for (int stackSlot = 0; stackSlot < windowStacks.Count; stackSlot++)
+            for (int stackSlot = 0; stackSlot < _windowStacks.Count; stackSlot++)
             {
-                WindowStack stack = windowStacks[stackSlot];
+                WindowStack stack = _windowStacks[stackSlot];
                 stack.HideAllWindows();
             }
         }
@@ -329,9 +345,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// <remarks>Ignores <see cref="IgnoreGroupWindow"/> windows</remarks>
         public void Show()
         {
-            canvasGroup.alpha = 1;
-            canvasGroup.blocksRaycasts = true;
-            canvasGroup.interactable = true;
+            _canvasGroup.alpha = 1;
+            _canvasGroup.blocksRaycasts = true;
+            _canvasGroup.interactable = true;
         }
         
         /// <summary>
@@ -340,9 +356,15 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// <remarks>Ignores <see cref="IgnoreGroupWindow"/> windows</remarks>
         public void Hide()
         {
-            canvasGroup.alpha = 0;
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.interactable = false;
+            _canvasGroup.alpha = 0;
+            _canvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+        }
+
+        private void OnValidate()
+        {
+            if(!_canvasGroup) _canvasGroup = GetComponent<CanvasGroup>();
+            if(!_windowsContainer) _windowsContainer = transform;
         }
     }
 }

@@ -15,7 +15,6 @@ namespace UIExtensionPackage.UISystem.Extensions
         /// <summary>
         /// Gets the distance between the specified UI object and the specified point.
         /// </summary>
-        /// <param name="fromPoint">Point to get the distance from.</param>
         /// <returns>Distance between the UI object and the specified point.</returns>
         public static float GetDistanceTo([NotNull] this UIObject uiObject, Vector2 fromPoint)
         {
@@ -259,7 +258,6 @@ namespace UIExtensionPackage.UISystem.Extensions
         /// <summary>
         /// Sets left offset bounds
         /// </summary>
-        /// <param name="left">Amount to set offset to</param>
         public static void SetLeft(this RectTransform rt, float left)
         {
             rt.offsetMin = new Vector2(left, rt.offsetMin.y);
@@ -267,7 +265,6 @@ namespace UIExtensionPackage.UISystem.Extensions
         /// <summary>
         /// Sets right offset bounds
         /// </summary>
-        /// <param name="right">Amount to set offset to</param>
         public static void SetRight(this RectTransform rt, float right)
         {
             rt.offsetMax = new Vector2(-right, rt.offsetMax.y);
@@ -275,7 +272,6 @@ namespace UIExtensionPackage.UISystem.Extensions
         /// <summary>
         /// Sets top offset bounds
         /// </summary>
-        /// <param name="top">Amount to set offset to</param>
         public static void SetTop(this RectTransform rt, float top)
         {
             rt.offsetMax = new Vector2(rt.offsetMax.x, -top);
@@ -283,7 +279,6 @@ namespace UIExtensionPackage.UISystem.Extensions
         /// <summary>
         /// Sets bottom offset bounds
         /// </summary>
-        /// <param name="bottom">Amount to set offset to</param>
         public static void SetBottom(this RectTransform rt, float bottom)
         {
             rt.offsetMin = new Vector2(rt.offsetMin.x, bottom);

@@ -12,12 +12,12 @@ namespace UIExtensionPackage.UISystem.Utils
     public class CanvasAutoScaler : MonoBehaviour
     {
         [Foldout("Debug"), SerializeField, ReadOnly]
-        CanvasScaler canvasScaler;
+        private CanvasScaler _canvasScaler;
         [Foldout("Debug"), SerializeField, ReadOnly]
-        private float resolutionRatio;
+        private float _resolutionRatio;
         private void Awake()
         {
-            canvasScaler = GetComponent<CanvasScaler>();
+            _canvasScaler = GetComponent<CanvasScaler>();
         }
 
         /// <summary>
@@ -26,12 +26,12 @@ namespace UIExtensionPackage.UISystem.Utils
         private void FixedUpdate()
         {
             // Compute resolution ratio
-            resolutionRatio = (float)Screen.width / Screen.height;
+            _resolutionRatio = (float)Screen.width / Screen.height;
         
             // If resolution ratio is greater than base resolution ratio aka.
             // the screen is wider than the base resolution, then match height.
             // Otherwise, match width.
-            canvasScaler.matchWidthOrHeight = resolutionRatio > DefaultConstants.BASE_RESOLUTION_RATIO ? 1 : 0;
+            _canvasScaler.matchWidthOrHeight = _resolutionRatio > DefaultConstants.BASE_RESOLUTION_RATIO ? 1 : 0;
         }
     }
 }

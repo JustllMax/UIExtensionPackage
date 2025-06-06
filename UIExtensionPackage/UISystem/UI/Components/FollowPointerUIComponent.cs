@@ -19,9 +19,9 @@ namespace UIExtensionPackage.UISystem.UI.Components
         private Vector2 _offset;
 
 
-        public override void Init(bool destroyComponentOnClick = true)
+        public override void Init(bool mDestroyComponentOnClick = true)
         {
-            base.Init(destroyComponentOnClick);
+            base.Init(mDestroyComponentOnClick);
             // Get Rect Transform
             _rectTransform = GetComponent<RectTransform>();
         }

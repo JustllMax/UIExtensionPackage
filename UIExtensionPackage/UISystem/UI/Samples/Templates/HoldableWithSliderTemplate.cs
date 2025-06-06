@@ -13,23 +13,23 @@ namespace UIExtensionPackage.UISystem.UI.Samples.Templates
     /// <remarks>For more advanced logic, implement new class that inherits from <see cref="HoldableElementUI"/>.</remarks>
     internal sealed class HoldableWithSliderTemplate : HoldableElementUI
     {
-        [Foldout("General")] [SerializeField] private Image sliderFillImage;
+        [Foldout("General")] [SerializeField] private Image _sliderFillImage;
 
         protected override void AttachEvents()
         {
             base.AttachEvents();
-            OnHoldProgressedChanged.AddListener(HoldProgressedChanged);
+            onHoldProgressedChanged.AddListener(HoldProgressedChanged);
         }
 
         protected override void DetachEvents()
         {
             base.DetachEvents();
-            OnHoldProgressedChanged.RemoveListener(HoldProgressedChanged);
+            onHoldProgressedChanged.RemoveListener(HoldProgressedChanged);
         }
         
         private void HoldProgressedChanged(float progress)
         {
-            sliderFillImage.fillAmount = progress;
+            _sliderFillImage.fillAmount = progress;
         }
         
     }

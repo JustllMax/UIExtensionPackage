@@ -17,28 +17,28 @@ namespace UIExtensionPackage.UISystem.UI.Windows
     [RequireComponent(typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster))]
     public abstract class UIWindow : UIObject, IClickable, IWindow, IWithSetup
     {
-        [Foldout("Config")][SerializeField] private RenderMode canvasRenderMode = RenderMode.ScreenSpaceOverlay;
-        [Foldout("Config")][SerializeField] private Canvas canvas;
-        [Foldout("Config")][SerializeField] private CanvasGroup canvasGroup;
-        [Foldout("Config")][SerializeField] private bool isDraggable = false;
-        [Foldout("Config")][SerializeField, ShowIf(nameof(isDraggable))] 
-            private bool resetPositionOnDragEnd = true;
+        [Foldout("Config")][SerializeField] private RenderMode _canvasRenderMode = RenderMode.ScreenSpaceOverlay;
+        [Foldout("Config")][SerializeField] private Canvas _canvas;
+        [Foldout("Config")][SerializeField] private CanvasGroup _canvasGroup;
+        [Foldout("Config")][SerializeField] private bool _isDraggable;
+        [Foldout("Config")][SerializeField, ShowIf(nameof(_isDraggable))] 
+            private bool _resetPositionOnDragEnd = true;
         
-        [Foldout("Debug")][SerializeField, ReadOnly, ShowIf(nameof(isDraggable))] 
-            DraggableUIComponent draggableUIComponent;
+        [Foldout("Debug")][SerializeField, ReadOnly, ShowIf(nameof(_isDraggable))] 
+            DraggableUIComponent _draggableUIComponent;
         [Foldout("Debug")][SerializeField, ReadOnly] 
-            List<UIPanel> uiPanels = new();
+            List<UIPanel> _uiPanels = new();
         
-        protected CanvasGroup CanvasGroup => canvasGroup;
+        protected CanvasGroup CanvasGroup => _canvasGroup;
         public WindowStack Stack { get; set; }
-        public DraggableUIComponent DraggableUIComponent => draggableUIComponent;
-        public bool CanBeDragged => draggableUIComponent.CanBeDragged;
+        public DraggableUIComponent DraggableUIComponent => _draggableUIComponent;
+        public bool CanBeDragged => _draggableUIComponent.CanBeDragged;
         
         /// <summary>
         /// Get the root window in the stack.
         /// </summary>
         public UIWindow RootWindow => Stack[0];
-        public bool IsDraggable => isDraggable;
+        public bool IsDraggable => _isDraggable;
         public bool CanBeInteractedWith { get; set; } = true;
         
         /// <summary>
@@ -60,18 +60,16 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// <summary>
         /// Handles changing draggable state
         /// </summary>
-        public void SetCanBeDragged(bool value) => draggableUIComponent.SetCanBeDragged(value);
+        public void SetCanBeDragged(bool value) => _draggableUIComponent.SetCanBeDragged(value);
         
         public virtual void SetUp()
         {
-            AttachEvents();
-            uiPanels.AddRange(GetComponentsInChildren<UIPanel>());
+            _uiPanels.AddRange(GetComponentsInChildren<UIPanel>());
             if (IsDraggable)
             {
-                draggableUIComponent = transform.GetChild(0).gameObject.AddComponent<DraggableUIComponent>();
-                draggableUIComponent.Init(transform, resetPositionOnDragEnd);
+                _draggableUIComponent = transform.GetChild(0).gameObject.AddComponent<DraggableUIComponent>();
+                _draggableUIComponent.Init(transform, _resetPositionOnDragEnd);
             }
-            
         }
 
         /// <summary>
@@ -79,18 +77,18 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void Show()
         {
-            canvasGroup.alpha = 1;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
+            _canvasGroup.alpha = 1;
+            _canvasGroup.interactable = true;
+            _canvasGroup.blocksRaycasts = true;
         }
         /// <summary>
         /// Method makes canvas invisible and not interactable
         /// </summary>
         public void Hide()
         {
-            canvasGroup.alpha = 0;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
+            _canvasGroup.alpha = 0;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
         }
 
 
@@ -109,10 +107,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void BringToTopAt(int sortingOrder)
         {
-            if (!canvas) return;
+            if (!_canvas) return;
 
             // Set sorting order
-            canvas.sortingOrder = sortingOrder;
+            _canvas.sortingOrder = sortingOrder;
         }
         
         /// <summary>
@@ -132,7 +130,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         {
             Show();
             HandleRefreshing();
-            foreach (UIPanel uiPanel in uiPanels)
+            foreach (UIPanel uiPanel in _uiPanels)
             {
                 uiPanel.Refresh();
             }
@@ -185,11 +183,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
 
         protected virtual void OnValidate()
         {
-            canvasGroup = GetComponent<CanvasGroup>();
-            canvas = GetComponent<Canvas>();
-            canvas.renderMode = canvasRenderMode;
+            if(!_canvasGroup)_canvasGroup = GetComponent<CanvasGroup>();
+            if(!_canvas) _canvas = GetComponent<Canvas>();
+            _canvas.renderMode = _canvasRenderMode;
         }
-
-
     }
 }

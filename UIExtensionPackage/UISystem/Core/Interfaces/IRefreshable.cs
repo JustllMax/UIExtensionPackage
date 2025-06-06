@@ -1,4 +1,4 @@
-namespace UIExtensionPackage.Core.Interfaces
+namespace UIExtensionPackage.UISystem.Core.Interfaces
 {
     public interface IRefreshable
     {

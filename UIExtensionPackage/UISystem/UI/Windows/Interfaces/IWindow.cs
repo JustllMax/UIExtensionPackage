@@ -1,5 +1,4 @@
-using UIExtensionPackage.Core.Interfaces;
-
+using UIExtensionPackage.UISystem.Core.Interfaces;
 
 namespace UIExtensionPackage.UISystem.UI.Windows.Interfaces
 {

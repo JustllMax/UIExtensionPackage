@@ -14,66 +14,61 @@ namespace UIExtensionPackage.UISystem.UI.Elements
     public abstract class FollowPointerUIElement : UIElement, IWithSetup
     {
 
-        [Foldout("Config")] [SerializeField] private bool destroyComponentOnClick = true;
+        [Foldout("Config")] [SerializeField] private bool _destroyComponentOnClick = true;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        FollowPointerUIComponent followPointerUIComponent;
+        FollowPointerUIComponent _followPointerUIComponent;
 
-        public UnityEvent<PointerEventData> OnClicked;
-        public UnityEvent<PointerEventData> OnPointerMoved;
-        public UnityEvent OnStartFollow;
-        public UnityEvent OnStopFollow;
-
+        public UnityEvent<PointerEventData> onClicked;
+        public UnityEvent<PointerEventData> onPointerMoved;
+        public UnityEvent onStartFollow;
+        public UnityEvent onStopFollow;
         
-        public FollowPointerUIComponent FollowPointerUIComponent
-        {
-            get => followPointerUIComponent;
-            private set => followPointerUIComponent = value;
-        }
+        public FollowPointerUIComponent FollowPointerUIComponent => _followPointerUIComponent;
 
         public bool CanFollow
         {
-            get => followPointerUIComponent.CanFollow;
-            set => followPointerUIComponent.CanFollow = value;
+            get => _followPointerUIComponent.CanFollow;
+            set => _followPointerUIComponent.CanFollow = value;
         }
 
         public bool CanBeInteractedWith
         {
-            get => followPointerUIComponent.CanBeInteractedWith;
-            set => followPointerUIComponent.CanBeInteractedWith = value;
+            get => _followPointerUIComponent.CanBeInteractedWith;
+            set => _followPointerUIComponent.CanBeInteractedWith = value;
         }
 
 
         public virtual void SetUp()
         {
-            followPointerUIComponent.Init(destroyComponentOnClick);
-            followPointerUIComponent.OnPointerClicked += OnClickedProxy;
-            followPointerUIComponent.OnPointerMoved += OnPointerMovedProxy;
-            followPointerUIComponent.OnStartFollow += OnStartFollowProxy;
-            followPointerUIComponent.OnStopFollow += OnStopFollowProxy;
+            _followPointerUIComponent.Init(_destroyComponentOnClick);
+            _followPointerUIComponent.OnPointerClicked += OnClickedProxy;
+            _followPointerUIComponent.OnPointerMoved += OnPointerMovedProxy;
+            _followPointerUIComponent.OnStartFollow += OnStartFollowProxy;
+            _followPointerUIComponent.OnStopFollow += OnStopFollowProxy;
 
         }
 
         public virtual void TearDown()
         {
-            if(!followPointerUIComponent) return;
-            followPointerUIComponent.OnPointerClicked -= OnClickedProxy;
-            followPointerUIComponent.OnPointerMoved -= OnPointerMovedProxy;
-            followPointerUIComponent.OnStartFollow -= OnStartFollowProxy;
-            followPointerUIComponent.OnStopFollow -= OnStopFollowProxy;
+            if(!_followPointerUIComponent) return;
+            _followPointerUIComponent.OnPointerClicked -= OnClickedProxy;
+            _followPointerUIComponent.OnPointerMoved -= OnPointerMovedProxy;
+            _followPointerUIComponent.OnStartFollow -= OnStartFollowProxy;
+            _followPointerUIComponent.OnStopFollow -= OnStopFollowProxy;
         }
         
-        public void StartFollow() => followPointerUIComponent?.StartFollow();
-        public void StopFollow() => followPointerUIComponent?.StopFollow();
+        public void StartFollow() => _followPointerUIComponent?.StartFollow();
+        public void StopFollow() => _followPointerUIComponent?.StopFollow();
         
-        private void OnStartFollowProxy() => OnStartFollow?.Invoke();
-        private void OnStopFollowProxy() => OnStopFollow?.Invoke();
-        private void OnPointerMovedProxy(PointerEventData eventData) => OnPointerMoved?.Invoke(eventData);
-        private void OnClickedProxy(PointerEventData eventData) => OnClicked?.Invoke(eventData);
+        private void OnStartFollowProxy() => onStartFollow?.Invoke();
+        private void OnStopFollowProxy() => onStopFollow?.Invoke();
+        private void OnPointerMovedProxy(PointerEventData eventData) => onPointerMoved?.Invoke(eventData);
+        private void OnClickedProxy(PointerEventData eventData) => onClicked?.Invoke(eventData);
         
         public virtual void OnValidate()
         {
-            if(followPointerUIComponent == null) followPointerUIComponent = GetComponent<FollowPointerUIComponent>();
+            if(_followPointerUIComponent == null) _followPointerUIComponent = GetComponent<FollowPointerUIComponent>();
         }
 
     }

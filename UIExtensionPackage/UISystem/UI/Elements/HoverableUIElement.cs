@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NaughtyAttributes;
 using UIExtensionPackage.ExtendedUI.Base;
 using UIExtensionPackage.ExtendedUI.Enums;
@@ -16,19 +15,19 @@ namespace UIExtensionPackage.UISystem.UI.Elements
     [RequireComponent(typeof(Graphic))]
     public abstract class HoverableUIElement : UIElement, IHoverable
     {
-        [Foldout("General")] [SerializeField] private TargetGraphicData[] targetGraphics;
+        [Foldout("General")] [SerializeField] private TargetGraphicData[] _targetGraphics;
         [Space] 
         [Header("Hover Events")] 
         [Foldout("Events")] [SerializeField] public UnityEvent onHoverEntered;
         [Foldout("Events")] [SerializeField] public UnityEvent onHoverExited;
 
-        [Foldout("Debug")] [SerializeField, ReadOnly] protected bool _canBeInteractedWith = true;
+        [Foldout("Debug")] [SerializeField, ReadOnly] protected bool canBeInteractedWith = true;
         
-        public bool IsHovered { get; private set; } = false;
+        public bool IsHovered { get; private set; }
         public bool CanBeInteractedWith 
         { 
-            get => _canBeInteractedWith && !IsInteractionDisabled; 
-            private set => _canBeInteractedWith = value;
+            get => canBeInteractedWith && !IsInteractionDisabled; 
+            private set => canBeInteractedWith = value;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -109,8 +108,8 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         /// </summary>
         private void HandleVisuals()
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].HandleVisuals(ActiveState, InteractionState);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].HandleVisuals(ActiveState, InteractionState);
             
         }
         /// <summary>

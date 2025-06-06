@@ -15,30 +15,30 @@ namespace UIExtensionPackage.UISystem.UI.Windows
     [Serializable]
     public class WindowStack
     {
-        private int sortingOrderLimit = DefaultConstants.SORTING_ORDER_LIMIT;
         
-        private static WindowStack _topStack;
         
+        
+        [SerializeField, ReadOnly] private List<UIWindow> _windows = new();
+
         /// <summary>
         /// Base value for each individual window stack
         /// </summary>
-        private static int SortingOrderValue = DefaultConstants.DEFAULT_WINDOW_SORTING_ORDER;
-
+        private static int _sortingOrderValue = DefaultConstants.DEFAULT_WINDOW_SORTING_ORDER;
+        private int _sortingOrderLimit = DefaultConstants.SORTING_ORDER_LIMIT;
+        
         /// <summary>
         /// Amount of possible windows that can be opened in single stack at once without having same sorting order as others
         /// </summary>
         int _amountOfPossibleWindows = 20;
-        
-
+        private static WindowStack _topStack;
         public int StackIndex { get; set; }
-        [SerializeField, ReadOnly] private List<UIWindow> windows = new();
-        public int Count => windows.Count;
+        public int Count => _windows.Count;
         public bool IsTopStack => _topStack == this;
 
-        public bool IsEmpty => windows.IsNullOrEmpty();
-        public bool IsAnyMovableWindowOpen => windows.Any(window => !window ? false : window.IsDraggable);
+        public bool IsEmpty => _windows.IsNullOrEmpty();
+        public bool IsAnyMovableWindowOpen => _windows.Any(window => window && window.IsDraggable);
 
-        public UIWindow this[int index] => windows[index];
+        public UIWindow this[int index] => _windows[index];
         
         
         /// <summary>
@@ -60,9 +60,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void ShowAllWindows()
         {
-            for (int i = 0; i < windows.Count; i++)
+            for (int i = 0; i < _windows.Count; i++)
             {
-                windows[i].Show();
+                _windows[i].Show();
             }
         }
                 
@@ -71,9 +71,9 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public void HideAllWindows()
         {
-            for (int i = 0; i < windows.Count; i++)
+            for (int i = 0; i < _windows.Count; i++)
             {
-                windows[i].Hide();
+                _windows[i].Hide();
             }
         }
 
@@ -83,7 +83,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         private bool CheckForSortingOrderLimit()
         {
-            if (SortingOrderValue >= sortingOrderLimit)
+            if (_sortingOrderValue >= _sortingOrderLimit)
             {
                 SetDefaultSortingOrderValue();
                 UIWindowManager.Instance.UpdateWindowStacksSortingOrders();
@@ -98,10 +98,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         {
             // Loop through all windows in the stack and bring them to top while
             // increasing the sorting order for each window
-            for (int windowIndex = 0; windowIndex < windows.Count; windowIndex++)
+            for (int windowIndex = 0; windowIndex < _windows.Count; windowIndex++)
             {
-                windows[windowIndex].BringToTopAt(SortingOrderValue + StackIndex*_amountOfPossibleWindows);
-                SortingOrderValue++;
+                _windows[windowIndex].BringToTopAt(_sortingOrderValue + StackIndex*_amountOfPossibleWindows);
+                _sortingOrderValue++;
             }
         }
 
@@ -112,7 +112,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// <param name="window">Window to add</param>
         public T AddWindow<T>(T window) where T : UIWindow
         {
-            windows.Add(window);
+            _windows.Add(window);
             return window;
         }
 
@@ -124,10 +124,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public bool CloseWindowByType<TWindowType>() where TWindowType : UIWindow
         {
             // Loop through all windows in the stack
-            for (int i = windows.Count - 1; i >= 0; i--)
+            for (int i = _windows.Count - 1; i >= 0; i--)
             {
                 // If window is not of the type we are looking for, skip it
-                if (windows[i] is not TWindowType window) continue;
+                if (_windows[i] is not TWindowType window) continue;
 
                 // Close window and return true as we found the window
                 // we don't need to scan the rest of the stack as
@@ -148,16 +148,16 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public bool CloseWindow<T>(T window) where T : UIWindow
         {
             // Get index of window
-            int index = windows.IndexOf(window);
+            int index = _windows.IndexOf(window);
 
             // If window is not in the stack, return false
             if (index == -1) return false;
 
             // Get all elements from stack
-            List<UIWindow> windowsToClose = windows.GetRange(index, windows.Count - index);
+            List<UIWindow> windowsToClose = _windows.GetRange(index, _windows.Count - index);
 
             // Remove window and all children from the stack
-            windows.RemoveRange(index, windows.Count - index);
+            _windows.RemoveRange(index, _windows.Count - index);
 
             // Close all windows
             for (int windowIndex = windowsToClose.Count - 1; windowIndex >= 0; windowIndex--)
@@ -180,10 +180,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public void RefreshWindow<TWindowType>() where TWindowType : UIWindow
         {
             // Loop through all windows in the stack
-            for (int i = windows.Count - 1; i >= 0; i--)
+            for (int i = _windows.Count - 1; i >= 0; i--)
             {
                 // If window is not of the type we are looking for, skip it
-                if (windows[i] is not TWindowType window) continue;
+                if (_windows[i] is not TWindowType window) continue;
 
                 // Refresh window
                 window.RefreshWindow();
@@ -197,7 +197,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public bool CloseLastOpenedWindow()
         {
             if (IsEmpty) return false;
-            CloseWindow(windows[^1]);
+            CloseWindow(_windows[^1]);
             return true;    
         }
         
@@ -207,10 +207,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public bool IsWindowOfTypeOpen<TWindowType>()
         {
             // Loop through all windows in the stack
-            for (int i = windows.Count - 1; i >= 0; i--)
+            for (int i = _windows.Count - 1; i >= 0; i--)
             {
                 // If window is of the type we are looking for, return true
-                if (windows[i] is TWindowType) return true;
+                if (_windows[i] is TWindowType) return true;
             }
 
             // If we didn't find the window, return false
@@ -223,17 +223,17 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public void CloseAllWindows()
         {
             // Close all windows
-            for (int i = windows.Count - 1; i >= 0; i--)
+            for (int i = _windows.Count - 1; i >= 0; i--)
             {
-                UIWindow window = windows[i];
+                UIWindow window = _windows[i];
                 window.DestroyWindow();
             }
 
             // Clear stack - remove all null windows
-            windows.RemoveAll(window => !window);
+            _windows.RemoveAll(window => !window);
             
             // Delete stack if empty
-            if (windows.IsNullOrEmpty()) 
+            if (_windows.IsNullOrEmpty()) 
                 UIWindowManager.Instance.RemoveWindowStackFromList(this);
         }
         
@@ -245,10 +245,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         where TWindowType : UIWindow
         {
             // Close all windows
-            for (int i = windows.Count - 1; i >= 0; i--)
+            for (int i = _windows.Count - 1; i >= 0; i--)
             {
                 // Get window
-                UIWindow window = windows[i];
+                UIWindow window = _windows[i];
                 // If window should be ignored, skip
                 if(window is TWindowType) continue;
                 // Destroy window
@@ -256,10 +256,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
             }
 
             // Clear stack - remove all null windows
-            windows.RemoveAll(window => !window);
+            _windows.RemoveAll(window => !window);
             
             // Delete stack if empty
-            if (windows.IsNullOrEmpty()) 
+            if (_windows.IsNullOrEmpty()) 
                 UIWindowManager.Instance.RemoveWindowStackFromList(this);
         }
         
@@ -272,10 +272,10 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public bool TryGetOpenedWindow<TWindowType>(out TWindowType window) where TWindowType : UIWindow
         {
             // Loop through all windows in the stack
-            for (int i = windows.Count - 1; i >= 0; i--)
+            for (int i = _windows.Count - 1; i >= 0; i--)
             {
                 // If window is not of the type we are looking for, skip it
-                if (windows[i] is not TWindowType foundWindow) continue;
+                if (_windows[i] is not TWindowType foundWindow) continue;
 
                 // Return window and true as we found the window
                 window = foundWindow;
@@ -293,7 +293,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         /// </summary>
         public static void SetDefaultSortingOrderValue()
         {
-            SortingOrderValue = DefaultConstants.DEFAULT_WINDOW_SORTING_ORDER;
+            _sortingOrderValue = DefaultConstants.DEFAULT_WINDOW_SORTING_ORDER;
         }
     }
 }

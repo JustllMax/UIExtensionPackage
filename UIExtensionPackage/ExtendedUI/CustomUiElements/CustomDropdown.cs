@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using TMPro;
 using UIExtensionPackage.ExtendedUI.Base;
 using UIExtensionPackage.ExtendedUI.Enums;
@@ -15,11 +14,12 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
     [Serializable]
     public class CustomDropdown : TMP_Dropdown
     {
-        [SerializeField] private bool unselectAfterPressed = true;
-        [SerializeField] TargetGraphicData[] targetGraphics;
-        
+        [SerializeField] private bool _unselectAfterPressed = true;
+        [SerializeField] TargetGraphicData[] _targetGraphics;
+
         private ActiveState ActiveState => interactable ? ActiveState.Enabled : ActiveState.Disabled;
         private InteractionState InteractionState => (InteractionState)currentSelectionState;
+
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
             // Do base transition
@@ -48,37 +48,38 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
-            if (unselectAfterPressed)
+            if (_unselectAfterPressed)
             {
                 OnDeselect(eventData);
             }
         }
-    
-       /// <summary>
+
+        /// <summary>
         /// Public wrapper for <see cref="HandleVisuals"/>
         /// </summary>
         public void HandleVisuals() => HandleVisuals(ActiveState, InteractionState);
+
         /// <summary>
         /// Perform visuals transition based of ActiveState and InteractionState
         /// </summary>
-       private void HandleVisuals(ActiveState activeState, InteractionState interactionState)
+        private void HandleVisuals(ActiveState activeState, InteractionState interactionState)
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].HandleVisuals(activeState, interactionState);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].HandleVisuals(activeState, interactionState);
         }
-        
-        
+
+
         /// <summary>
-        /// Sets transition for all <see cref="targetGraphics"/> driven from default button
+        /// Sets transition for all <see cref="_targetGraphics"/> driven from default button
         /// </summary>
         public void SetDefaultTransition()
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].SetTransition(transition);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetTransition(transition);
         }
-        
+
         /// <summary>
-        /// Sets values driven from default button for <see cref="targetGraphics"/> by default button selected transition
+        /// Sets values driven from default button for <see cref="_targetGraphics"/> by selected transition
         /// </summary>
         public void SetDefaultSettings()
         {
@@ -101,19 +102,19 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         /// <summary>
         /// Sets colors from default button
         /// </summary>
-        private void SetDefaultColors() 
+        private void SetDefaultColors()
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].SetColors(colors);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetColors(colors);
         }
 
         /// <summary>
         /// Sets sprites from default button
         /// </summary>
-        private void SetDefaultSprites() 
+        private void SetDefaultSprites()
         {
-            for (int i = 0; i < targetGraphics.Length; i++) 
-                targetGraphics[i].SetSprites(spriteState);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetSprites(spriteState);
         }
 
         /// <summary>
@@ -121,8 +122,8 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         /// </summary>
         private void SetDefaultAnimationTriggers()
         {
-            for (int i = 0; i < targetGraphics.Length; i++)
-                targetGraphics[i].SetAnimations(animationTriggers);
+            for (int i = 0; i < _targetGraphics.Length; i++)
+                _targetGraphics[i].SetAnimations(animationTriggers);
         }
     }
 }

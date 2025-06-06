@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor.UI;
 using UIExtensionPackage.ExtendedUI.CustomUIElements;
 
+// ReSharper disable once CheckNamespace
 namespace UIExtensionPackage.ExtendedUI.Editor
 {
 
@@ -12,13 +13,13 @@ namespace UIExtensionPackage.ExtendedUI.Editor
     [CustomEditor(typeof(CustomButton))]
     public class CustomButtonEditor : ButtonEditor
     {
-        private SerializedProperty unselectAfterPressed;
-        private SerializedProperty targetGraphics;
+        private SerializedProperty _unselectAfterPressed;
+        private SerializedProperty _targetGraphics;
         protected override void OnEnable()
         {
             base.OnEnable();
-            unselectAfterPressed = serializedObject.FindProperty(nameof(unselectAfterPressed));
-            targetGraphics = serializedObject.FindProperty(nameof(targetGraphics));
+            _unselectAfterPressed = serializedObject.FindProperty(nameof(_unselectAfterPressed));
+            _targetGraphics = serializedObject.FindProperty(nameof(_targetGraphics));
         }
 
         public override void OnInspectorGUI()
@@ -40,10 +41,10 @@ namespace UIExtensionPackage.ExtendedUI.Editor
             }
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Custom Button Properties", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(unselectAfterPressed, new GUIContent("Unselect after pressed"));
+            EditorGUILayout.PropertyField(_unselectAfterPressed, new GUIContent("Unselect after pressed"));
             
             //Draw target graphics list
-            EditorGUILayout.PropertyField(targetGraphics, new GUIContent("Target Graphics"), true);
+            EditorGUILayout.PropertyField(_targetGraphics, new GUIContent("Target Graphics"), true);
 
             EditorGUILayout.Space();
 

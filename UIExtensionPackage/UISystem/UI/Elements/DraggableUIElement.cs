@@ -14,47 +14,46 @@ namespace UIExtensionPackage.UISystem.UI.Elements
     [RequireComponent(typeof(DraggableUIComponent))]
     public abstract class DraggableUIElement : SelectableUIElement<DraggableUIElement>, IWithSetup
     {
-
-        [Foldout("Config")] [SerializeField] private bool resetPositionOnDragEnd = true;
-        [Foldout("Config")] [SerializeField] private Transform parentDuringDrag;
+        [Foldout("Config")] [SerializeField] private bool _resetPositionOnDragEnd = true;
+        [Foldout("Config")] [SerializeField] private Transform _parentDuringDrag;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        DraggableUIComponent draggableUIComponent;
+        DraggableUIComponent _draggableUIComponent;
+
 
         [Space] [Header("Drag Events")]
-        [Foldout("Events")] public UnityEvent<PointerEventData> OnDragBegin;
-        [Foldout("Events")] public UnityEvent<PointerEventData> OnDragging;
-        [Foldout("Events")] public UnityEvent<PointerEventData> OnDragEnd;
-        public DraggableUIComponent DraggableUIComponent => draggableUIComponent;
-
-        public bool CanBeDragged => draggableUIComponent.CanBeDragged;
-        public void SetCanBeDragged(bool value) => draggableUIComponent.SetCanBeDragged(value);
+        [Foldout("Events")] public UnityEvent<PointerEventData> onDragBegin;
+        [Foldout("Events")] public UnityEvent<PointerEventData> onDragging;
+        [Foldout("Events")] public UnityEvent<PointerEventData> onDragEnd;
+        public DraggableUIComponent DraggableUIComponent => _draggableUIComponent;
+        public bool CanBeDragged => _draggableUIComponent.CanBeDragged;
+        public void SetCanBeDragged(bool value) => _draggableUIComponent.SetCanBeDragged(value);
         public virtual void SetUp()
         {
-            draggableUIComponent.Init(parentDuringDrag, resetPositionOnDragEnd);
-            draggableUIComponent.OnDragBegin += OnBeginDragProxy;
-            draggableUIComponent.OnDragging += OnDraggingProxy; 
-            draggableUIComponent.OnDragEnd += OnDragEndProxy;
+            _draggableUIComponent.Init(_parentDuringDrag, _resetPositionOnDragEnd);
+            _draggableUIComponent.OnDragBegin += OnBeginDragProxy;
+            _draggableUIComponent.OnDragging += OnDraggingProxy; 
+            _draggableUIComponent.OnDragEnd += OnDragEndProxy;
         }
         
         public virtual void TearDown()
         {
-            draggableUIComponent.OnDragBegin -= OnBeginDragProxy;
-            draggableUIComponent.OnDragging -= OnDraggingProxy; 
-            draggableUIComponent.OnDragEnd -= OnDragEndProxy;
+            _draggableUIComponent.OnDragBegin -= OnBeginDragProxy;
+            _draggableUIComponent.OnDragging -= OnDraggingProxy; 
+            _draggableUIComponent.OnDragEnd -= OnDragEndProxy;
         }
         
-        private void OnBeginDragProxy(PointerEventData eventData) => OnDragBegin?.Invoke(eventData);
-        private void OnDraggingProxy(PointerEventData eventData) => OnDragging?.Invoke(eventData);
-        private void OnDragEndProxy(PointerEventData eventData) => OnDragEnd?.Invoke(eventData);
+        private void OnBeginDragProxy(PointerEventData eventData) => onDragBegin?.Invoke(eventData);
+        private void OnDraggingProxy(PointerEventData eventData) => onDragging?.Invoke(eventData);
+        private void OnDragEndProxy(PointerEventData eventData) => onDragEnd?.Invoke(eventData);
 
 
         protected override bool ShouldShowUnselectOnPointerUp() => false; 
         protected override void OnValidate()
         {
             base.OnValidate();
-            if (parentDuringDrag == null) parentDuringDrag = transform.parent;
-            if (draggableUIComponent == null) draggableUIComponent = GetComponent<DraggableUIComponent>();
+            if (_parentDuringDrag == null) _parentDuringDrag = transform.parent;
+            if (_draggableUIComponent == null) _draggableUIComponent = GetComponent<DraggableUIComponent>();
         }
     }
 }

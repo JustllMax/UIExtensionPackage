@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
+// ReSharper disable CheckNamespace
 namespace UIExtensionPackage.ExtendedUI.Editor
 {
     /// <summary>

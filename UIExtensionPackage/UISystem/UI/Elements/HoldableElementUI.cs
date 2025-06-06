@@ -4,6 +4,7 @@ using UIExtensionPackage.ExtendedUI.Enums;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace UIExtensionPackage.UISystem.UI.Elements
 {
@@ -16,121 +17,121 @@ namespace UIExtensionPackage.UISystem.UI.Elements
 
         #region VARIABLES
         
-
+        [FormerlySerializedAs("OnHoldStarted")]
         [Header("Hold Events")] [Space]
         
-        [Foldout("Events")] [SerializeField] public UnityEvent OnHoldStarted;
-        [Foldout("Events")] [SerializeField] public UnityEvent<float> OnHoldProgressedChanged;
-        [Foldout("Events")] [SerializeField] public UnityEvent<float> OnHoldReleased;
-        [Foldout("Events")] [SerializeField] public UnityEvent OnFullyLoaded;
+        [Foldout("Events")] [SerializeField] public UnityEvent onHoldStarted;
+        [Foldout("Events")] [SerializeField] public UnityEvent<float> onHoldProgressedChanged;
+        [Foldout("Events")] [SerializeField] public UnityEvent<float> onHoldReleased;
+        [Foldout("Events")] [SerializeField] public UnityEvent onFullyLoaded;
 
         [Foldout("Config")] [SerializeField] [Tooltip("Amount of uses.\n-1 for infinite.")]
-        private int amountOfUse = -1;
+        private int _amountOfUse = -1;
 
         [Foldout("Config")] [SerializeField] [Tooltip("Scales with Time.unscaledDeltaTime if false")]
-        private bool useScaledDeltaTime = false;
+        private bool _useScaledDeltaTime;
 
         [Foldout("Config")] [SerializeField] [Tooltip("Should release of the object when progress is fully reached.")]
-        private bool releaseOnFullHold = false;
+        private bool _releaseOnFullHold;
 
-
+        
         [Foldout("Config")] [SerializeField]
         [Tooltip("Should fire OnHoldRelease events when not held and progress was not fully loaded.")]
-        private bool fireOnEarlyRelease = true;
-
+        private bool _fireOnEarlyRelease = true;
+        
         [Foldout("Config")] [SerializeField, ShowIf(nameof(ShouldShowSaveHoldTime))] 
         [Tooltip("Progress won't be reset back to 0 on early release.")]
-        private bool saveHoldTimeOnEarlyRelease = true;
-
-        [Foldout("Config")] [SerializeField, ShowIf(nameof(saveHoldTimeOnEarlyRelease))] 
+        private bool _saveHoldTimeOnEarlyRelease = true;
+        
+        [Foldout("Config")] [SerializeField, ShowIf(nameof(_saveHoldTimeOnEarlyRelease))] 
         [Tooltip("Progress will now slowly revert back to 0 on early release.")]
-        private bool slowlyRegressOnEarlyRelease = true;
-
+        private bool _slowlyRegressOnEarlyRelease = true;
+        
         [Header("Regress config")]
         [Foldout("Config")] [SerializeField]
         [Tooltip("When firing, should the progress be set instantly " +
                  "or slowly progress back to start position.")]
-        private bool resetProgressOnRelease = false;
+        private bool _resetProgressOnRelease;
         
         [Foldout("Config")] [SerializeField, Min(0.01f), ShowIf(nameof(ShouldShowEarlyFireReset))]
-        private bool resetProgressOnEarlyFire = false;
+        private bool _resetProgressOnEarlyFire;
 
+       
         [Foldout("Config")]
         [SerializeField, ShowIf(nameof(ShouldShowFullyFireReset))]
         [Tooltip("When fully loaded and released, should the progress be set instantly " +
                  "or slowly regress back to start position.")]
-        private bool resetProgressOnFullyLoaded = true;
-
+        private bool _resetProgressOnFullyLoaded = true;
+        
         [Foldout("Config")]
         [SerializeField, Min(0.01f), ShowIf(nameof(ShouldShowRegressModifier))]
         [Tooltip("How much to speed up regress when not held. 1 is normal.\nExamples: 1.4, 0.51, 1.01")]
-        private float earlyReleaseRegressSpeedModifier = 1f;
-
+        private float _earlyReleaseRegressSpeedModifier = 1f;
+        
         [Foldout("Config")]
         [SerializeField, Min(0.01f), ShowIf(nameof(ShouldShowFullRegressModifier))]
         [Tooltip("How much to speed up regress when fired OnRelease events. 1 is normal.\nExamples: 1.4, 0.51, 1.01")]
-        private float onFireRegressSpeedModifier = 2f;
-
+        private float _onFireRegressSpeedModifier = 2f;
+        
         [Header("Holding Config")]
         [Foldout("Config")] [SerializeField]
         [Tooltip("Starting value for hold amount. In Seconds.")]
-        private float startHoldTime = 0f;
-
+        private float _startHoldTime;
+        
         [Foldout("Config")] [SerializeField] 
         [Tooltip("How long to hold for. In Seconds.")]
-        private float maxHoldTime = 1;
-
+        private float _maxHoldTime = 1;
+        
         [Foldout("Config")] [SerializeField, Min(0.01f)]
         [Tooltip("How much to speed up progress. 1 is normal.\nExamples: 1.4, 0.51, 1.01")]
-        private float progressSpeedModifier = 1f;
+        private float _progressSpeedModifier = 1f;
         
+        [Foldout("Debug")] [SerializeField, ReadOnly]
+        private bool _isHolding;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        private bool isHolding;
+        private float _holdDuration;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        private float _holdDuration = 0;
+        private bool _hasStartHoldInvokedFlag;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        private bool _hasStartHoldInvokedFlag = false;
+        private bool _hasFullyLoadInvokedFlag;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        private bool _hasFullyLoadInvokedFlag = false;
+        private bool _hasFired;
 
         [Foldout("Debug")] [SerializeField, ReadOnly]
-        private bool _hasFired = false;
-
-        [Foldout("Debug")] [SerializeField, ReadOnly]
-        private bool _hasReleasedFullyLoaded = false;
+        private bool _hasReleasedFullyLoaded;
 
         #endregion
 
         #region ATTRIBUTES
 
-        public bool IsHolding => isHolding;
+        public bool IsHolding => _isHolding;
         private bool IsFullyLoaded => GetNormalizedProgress() >= 0.9875f;
         public float CurrentHoldDuration => _holdDuration;
 
-        private float ModifiedProgressSpeed => useScaledDeltaTime
-            ? Time.deltaTime * progressSpeedModifier
-            : Time.unscaledDeltaTime * progressSpeedModifier;
+        private float ModifiedProgressSpeed => _useScaledDeltaTime
+            ? Time.deltaTime * _progressSpeedModifier
+            : Time.unscaledDeltaTime * _progressSpeedModifier;
 
-        private float RegressSpeed => useScaledDeltaTime
-            ? Time.deltaTime * earlyReleaseRegressSpeedModifier
-            : Time.unscaledDeltaTime * earlyReleaseRegressSpeedModifier;
+        private float RegressSpeed => _useScaledDeltaTime
+            ? Time.deltaTime * _earlyReleaseRegressSpeedModifier
+            : Time.unscaledDeltaTime * _earlyReleaseRegressSpeedModifier;
 
-        private float FullRegressSpeed => useScaledDeltaTime
-            ? Time.deltaTime * onFireRegressSpeedModifier
-            : Time.unscaledDeltaTime * onFireRegressSpeedModifier;
+        private float FullRegressSpeed => _useScaledDeltaTime
+            ? Time.deltaTime * _onFireRegressSpeedModifier
+            : Time.unscaledDeltaTime * _onFireRegressSpeedModifier;
 
         public int AmountOfUse
         {
-            get => amountOfUse;
-            private set => amountOfUse = value;
+            get => _amountOfUse;
+            private set => _amountOfUse = value;
         }
 
-        public bool IsInfinite => amountOfUse == -1;
-        public bool HasUses => amountOfUse > 0 || IsInfinite;
+        public bool IsInfinite => _amountOfUse == -1;
+        public bool HasUses => _amountOfUse > 0 || IsInfinite;
 
         #endregion
         
@@ -159,7 +160,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         {
             base.OnPointerDown(eventData);
             if (!CanBeInteractedWith || !IsActive) return;
-            isHolding = true;
+            _isHolding = true;
 
         }
 
@@ -183,14 +184,14 @@ namespace UIExtensionPackage.UISystem.UI.Elements
                 return;
             }
             // Or when not fully loaded, check for early firing event
-            if (fireOnEarlyRelease)
+            if (_fireOnEarlyRelease)
             {
                 OnEarlyHoldFire();
                 return;
             }
 
             //Do not save progress => reset hold duration
-            if (!saveHoldTimeOnEarlyRelease)
+            if (!_saveHoldTimeOnEarlyRelease)
                 ResetHoldDuration();
         }
 
@@ -207,10 +208,10 @@ namespace UIExtensionPackage.UISystem.UI.Elements
 
             //Decrease amount of use
             if (!IsInfinite)
-                amountOfUse--;
+                _amountOfUse--;
 
             //Reset timers
-            if (resetProgressOnFullyLoaded)
+            if (_resetProgressOnFullyLoaded)
             {
                 ResetHoldDuration();
                 ResetFlags();
@@ -221,12 +222,12 @@ namespace UIExtensionPackage.UISystem.UI.Elements
             // Set interaction state
             SetCanBeInteractedWith(false);
             // Set flag
-            isHolding = false;
+            _isHolding = false;
         }
         
         /// <summary>
         /// Method implements logic for release of the element
-        /// when not fully regressed and <see cref="fireOnEarlyRelease"/> is set to true
+        /// when not fully regressed and <see cref="_fireOnEarlyRelease"/> is set to true
         /// </summary>
         private void OnEarlyHoldFire()
         {
@@ -237,7 +238,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
 
             //Decrease amount of use
             if (!IsInfinite)
-                amountOfUse--;
+                _amountOfUse--;
 
             //Set interaction state - used in regressing hold
             SetCanBeInteractedWith(false);
@@ -249,7 +250,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void CheckIsRegressing()
         {
             //If object is not being held, but it previously was, regress the hold duration   
-            if (!isHolding && _holdDuration > startHoldTime)
+            if (!_isHolding && _holdDuration > _startHoldTime)
             {
                 RegressHold();
             }
@@ -295,7 +296,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void RegressHold()
         {
             // Check is hold duration above startHoldTime aka is being held
-            if (_holdDuration > startHoldTime)
+            if (_holdDuration > _startHoldTime)
             {
                 // Check for fire flag
                 if (_hasFired)
@@ -308,13 +309,13 @@ namespace UIExtensionPackage.UISystem.UI.Elements
                 }
 
                 // Check for slow regress option
-                if (!slowlyRegressOnEarlyRelease && !_hasFired)
+                if (!_slowlyRegressOnEarlyRelease && !_hasFired)
                 {
                     //Stop the progress in place, do not regress
-                    if (saveHoldTimeOnEarlyRelease) return;
+                    if (_saveHoldTimeOnEarlyRelease) return;
                     
                     //Instantly regress progress to 0
-                    if(resetProgressOnRelease)
+                    if(_resetProgressOnRelease)
                     {
                         ResetFlags();
                         return;
@@ -331,9 +332,9 @@ namespace UIExtensionPackage.UISystem.UI.Elements
                     _holdDuration -= RegressSpeed;
 
                 // When fully regressed, reset object state
-                if (_holdDuration <= startHoldTime)
+                if (_holdDuration <= _startHoldTime)
                 {
-                    _holdDuration = startHoldTime;
+                    _holdDuration = _startHoldTime;
                     // Check for uses left
                     if (HasUses)
                     {
@@ -347,14 +348,14 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private bool CheckForInstantFireReset()
         {
             //Reset on early fire release
-            if (resetProgressOnEarlyFire && !_hasFullyLoadInvokedFlag) 
+            if (_resetProgressOnEarlyFire && !_hasFullyLoadInvokedFlag) 
             {
                 ResetHoldDuration();
                 return true;
             }
 
             //Reset on full fire release
-            if (_hasReleasedFullyLoaded && resetProgressOnFullyLoaded && _hasFullyLoadInvokedFlag)
+            if (_hasReleasedFullyLoaded && _resetProgressOnFullyLoaded && _hasFullyLoadInvokedFlag)
             {
                 ResetHoldDuration();
                 return true;
@@ -369,7 +370,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void UpdateHoldDuration()
         {
             // Increase hold progress
-            if (_holdDuration < maxHoldTime)
+            if (_holdDuration < _maxHoldTime)
             {
                 _holdDuration += ModifiedProgressSpeed;
                 InvokeOnHoldProgressedChanged();
@@ -378,13 +379,13 @@ namespace UIExtensionPackage.UISystem.UI.Elements
             // When fully loaded, set flags and stop increasing
             if (IsFullyLoaded)
             {
-                _holdDuration = maxHoldTime;
+                _holdDuration = _maxHoldTime;
                 if (!_hasFullyLoadInvokedFlag)
                 {
                     InvokeOnFullyLoaded();
                 }
                 
-                if (releaseOnFullHold) ReleaseHold();
+                if (_releaseOnFullHold) ReleaseHold();
             }
         }
 
@@ -394,13 +395,13 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void OnStopHolding() 
         {
             // If was held, release
-            if (isHolding) ReleaseHold();
-            isHolding = false;
+            if (_isHolding) ReleaseHold();
+            _isHolding = false;
         }
 
         protected override void HandleDisable()
         {
-            if (isHolding) OnStopHolding();
+            if (_isHolding) OnStopHolding();
             base.HandleDisable();
         }
 
@@ -411,7 +412,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         {
             _hasFired = false;
             _hasReleasedFullyLoaded = false;
-            isHolding = false;
+            _isHolding = false;
             SetStartFlag(false);
             SetFullyLoadedFlag(false);
             SetCanBeInteractedWith(true);
@@ -458,7 +459,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         /// </summary>
         IEnumerator WaitForHoldRegress()
         {
-            while (_holdDuration > startHoldTime)
+            while (_holdDuration > _startHoldTime)
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -475,7 +476,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         /// </summary>
         private void ResetHoldDuration()
         {
-            _holdDuration = startHoldTime;
+            _holdDuration = _startHoldTime;
             _hasFired = false;
             _hasStartHoldInvokedFlag = false;
             InvokeOnHoldProgressedChanged();
@@ -484,7 +485,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         public float GetNormalizedProgress()
         {
             
-            return ((_holdDuration - startHoldTime) / (maxHoldTime - startHoldTime));
+            return ((_holdDuration - _startHoldTime) / (_maxHoldTime - _startHoldTime));
         }
 
         /// <summary>
@@ -493,7 +494,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void InvokeOnHoldStarted()
         {
             SetStartFlag(true);
-            OnHoldStarted?.Invoke();
+            onHoldStarted?.Invoke();
         }
 
         /// <summary>
@@ -501,7 +502,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         /// </summary>
         private void InvokeOnHoldProgressedChanged()
         {
-            OnHoldProgressedChanged?.Invoke(GetNormalizedProgress());
+            onHoldProgressedChanged?.Invoke(GetNormalizedProgress());
         }
 
         /// <summary>
@@ -510,7 +511,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void InvokeOnHoldReleased()
         {
             SetStartFlag(false);
-            OnHoldReleased?.Invoke(GetNormalizedProgress());
+            onHoldReleased?.Invoke(GetNormalizedProgress());
         }
 
         /// <summary>
@@ -519,7 +520,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         private void InvokeOnFullyLoaded()
         {
             SetFullyLoadedFlag(true);
-            OnFullyLoaded?.Invoke();
+            onFullyLoaded?.Invoke();
         }
 
         #endregion
@@ -532,11 +533,11 @@ namespace UIExtensionPackage.UISystem.UI.Elements
 
         #region INSPECTOR_UTILITIES
 
-        private bool ShouldShowEarlyFireReset() => fireOnEarlyRelease && !resetProgressOnRelease;
-        private bool ShouldShowFullyFireReset() => !resetProgressOnRelease;
-        private bool ShouldShowRegressModifier() => !resetProgressOnEarlyFire || slowlyRegressOnEarlyRelease; 
-        private bool ShouldShowFullRegressModifier() => !resetProgressOnFullyLoaded;  
-        private bool ShouldShowSaveHoldTime() => !fireOnEarlyRelease;
+        private bool ShouldShowEarlyFireReset() => _fireOnEarlyRelease && !_resetProgressOnRelease;
+        private bool ShouldShowFullyFireReset() => !_resetProgressOnRelease;
+        private bool ShouldShowRegressModifier() => !_resetProgressOnEarlyFire || _slowlyRegressOnEarlyRelease; 
+        private bool ShouldShowFullRegressModifier() => !_resetProgressOnFullyLoaded;  
+        private bool ShouldShowSaveHoldTime() => !_fireOnEarlyRelease;
         protected override bool ShouldShowUnselectOnPointerUp() => false;
         protected override bool ShouldShowSelectEvents() => false;
         #endregion
@@ -545,26 +546,26 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         {
             base.OnValidate();
 
-            if (startHoldTime >= maxHoldTime)
+            if (_startHoldTime >= _maxHoldTime)
             {
-                Debug.LogError($"Starting Hold Time {startHoldTime} has to be smaller than Hold Time {maxHoldTime}!" +
-                               $"\nStarting Hold Time {startHoldTime} set to {startHoldTime -= 1f} ");
-                startHoldTime -= 1f;
+                Debug.LogError($"Starting Hold Time {_startHoldTime} has to be smaller than Hold Time {_maxHoldTime}!" +
+                               $"\nStarting Hold Time {_startHoldTime} set to {_startHoldTime -= 1f} ");
+                _startHoldTime -= 1f;
 
             }
 
             // Fail safe 
-            if (resetProgressOnRelease)
+            if (_resetProgressOnRelease)
             {
-                resetProgressOnFullyLoaded = true;
-                resetProgressOnEarlyFire = true;
+                _resetProgressOnFullyLoaded = true;
+                _resetProgressOnEarlyFire = true;
             }
             // Fail safe 
-            if (fireOnEarlyRelease) saveHoldTimeOnEarlyRelease = false;
+            if (_fireOnEarlyRelease) _saveHoldTimeOnEarlyRelease = false;
             // Fail safe 
-            if(!fireOnEarlyRelease) resetProgressOnEarlyFire = true; 
+            if(!_fireOnEarlyRelease) _resetProgressOnEarlyFire = true; 
             // Fail safe 
-            if (!saveHoldTimeOnEarlyRelease) slowlyRegressOnEarlyRelease = false;
+            if (!_saveHoldTimeOnEarlyRelease) _slowlyRegressOnEarlyRelease = false;
 
 
         }

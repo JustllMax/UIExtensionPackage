@@ -9,15 +9,15 @@ namespace UIExtensionPackage.UISystem.UI.Windows
     /// </summary>
     public abstract class IgnoreCloseWindow : UIWindow
     {
-        [SerializeField] private Button closeButton;
-        public override bool AllowMultiple { get; } = false;
+        [SerializeField] private Button _closeButton;
+        public override bool AllowMultiple => false;
 
         public override void SetUp()
         {
             base.SetUp();
             
-            if (closeButton)
-                closeButton.onClick.AddListener(Close);
+            if (_closeButton)
+                _closeButton.onClick.AddListener(Close);
             else
                 Debug.LogWarning($"{gameObject.name} does not have a close button reference.");
         }

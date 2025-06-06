@@ -122,7 +122,7 @@ namespace UIExtensionPackage.ExtendedUI.Base
                 {
                     image.sprite = selectedSprite;
                     return;
-                };
+                }
                 default:
                 {
                     image.sprite = normalSprite;

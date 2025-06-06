@@ -4,7 +4,7 @@ namespace UIExtensionPackage.ExtendedUI.Enums
     /// <summary>
     /// Represents current interaction state of the object
     /// </summary>
-    public enum InteractionState : int
+    public enum InteractionState
     {
         None = 0,
         Hovered = 1,

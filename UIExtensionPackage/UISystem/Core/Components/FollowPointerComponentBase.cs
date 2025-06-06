@@ -12,11 +12,12 @@ namespace UIExtensionPackage.UISystem.Core.Components
     public abstract class FollowPointerComponentBase : MonoBehaviour, IPointerMoveHandler, IClickable
     {
         [Foldout("Debug")] [SerializeField, ReadOnly]
+        private bool _initialized;
+        [Foldout("Debug")] [SerializeField, ReadOnly]
         protected bool destroyComponentOnClick = true; 
         [Foldout("Debug")] [SerializeField, ReadOnly]
         protected bool canFollow = true; 
-        [Foldout("Debug")] [SerializeField, ReadOnly]
-        private bool initialized = false;
+        
         public bool CanBeInteractedWith { get; set; } = true;
         public bool CanFollow 
         { 
@@ -34,11 +35,11 @@ namespace UIExtensionPackage.UISystem.Core.Components
         /// <summary>
         /// Handles initialization, called by outside classes when instantiating.
         /// </summary>
-        public virtual void Init(bool destroyComponentOnClick = true)
+        public virtual void Init(bool mDestroyComponentOnClick = true)
         {
-            if(initialized) return;
-            initialized = true;
-            this.destroyComponentOnClick = destroyComponentOnClick;
+            if(_initialized) return;
+            _initialized = true;
+            destroyComponentOnClick = mDestroyComponentOnClick;
         }
         
         public void OnPointerMove(PointerEventData eventData)

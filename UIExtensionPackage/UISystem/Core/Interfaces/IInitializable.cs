@@ -9,7 +9,7 @@ namespace UIExtensionPackage.UISystem.Core.Interfaces
         /// <summary>
         /// Flag for initialization
         /// </summary>
-        public bool IsInitialized { get; set; }
+        public bool IsInitialized { get;}
         /// <summary>
         /// Method for handling initialization
         /// </summary>

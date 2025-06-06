@@ -1,5 +1,5 @@
 
-namespace UIExtensionPackage.Core.Interfaces
+namespace UIExtensionPackage.UISystem.Core.Interfaces
 {
     /// <summary>
     /// Interface for objects that can be hidden

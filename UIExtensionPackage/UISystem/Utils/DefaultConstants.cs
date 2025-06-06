@@ -1,4 +1,5 @@
 
+// ReSharper disable InconsistentNaming
 namespace UIExtensionPackage.UISystem.Utils
 {
     /// <summary>

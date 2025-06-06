@@ -20,7 +20,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         /// <summary>
         /// Event that happens when the value of the dropdown is changed.
         /// </summary>
-        public UnityEvent<int> OnValueChanged;
+        public UnityEvent<int> onValueChanged;
         /// <summary>
         /// Value of this dropdown (index of selected item)
         /// </summary>
@@ -33,7 +33,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
 
         public virtual void SetUp()
         {
-            UnityDropdown?.onValueChanged.AddListener((int value) =>OnValueChanged?.Invoke(value));
+            UnityDropdown?.onValueChanged.AddListener((value) =>onValueChanged?.Invoke(value));
         }
 
         public virtual void TearDown()

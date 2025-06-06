@@ -16,10 +16,13 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         
         [Foldout("General")][SerializeField, ShowIf(nameof(ShouldShowUnselectOnPointerUp))] 
         protected bool unselectOnPointerUp = true;
-        [Foldout("Debug")][SerializeField, ReadOnly] protected bool isSelected = false;
+        [Foldout("Debug")][SerializeField, ReadOnly] protected bool isSelected;
+
         [Header("Select Events")]
-        [Foldout("Events")][SerializeField, ShowIf(nameof(ShouldShowSelectEvents))] public UnityEvent<T> OnSelected;
-        [Foldout("Events")][SerializeField, ShowIf(nameof(ShouldShowSelectEvents))] public UnityEvent<T> OnDeselected;
+        [Foldout("Events")][SerializeField, ShowIf(nameof(ShouldShowSelectEvents))]
+        public UnityEvent<T> onSelected;
+        [Foldout("Events")][SerializeField, ShowIf(nameof(ShouldShowSelectEvents))] 
+        public UnityEvent<T> onDeselected;
         public void OnClicked(PointerEventData eventData)
         {
             HandleOnClickLogic();
@@ -88,12 +91,12 @@ namespace UIExtensionPackage.UISystem.UI.Elements
             if (value)
             {
                 isSelected = true;
-                OnSelected?.Invoke(this as T);
+                onSelected?.Invoke(this as T);
             }
             else
             {
                 isSelected = false;
-                OnDeselected?.Invoke(this as T);
+                onDeselected?.Invoke(this as T);
             }
         }
 
@@ -107,7 +110,7 @@ namespace UIExtensionPackage.UISystem.UI.Elements
         }
         
         /// <summary>
-        /// Method used for showing or hiding <see cref="OnSelected"/> and <see cref="OnDeselected"/> events
+        /// Method used for showing or hiding <see cref="onSelected"/> and <see cref="onDeselected"/> events
         /// </summary>
         /// <remarks>To not show, simply override and return false</remarks>
         protected virtual bool ShouldShowSelectEvents()

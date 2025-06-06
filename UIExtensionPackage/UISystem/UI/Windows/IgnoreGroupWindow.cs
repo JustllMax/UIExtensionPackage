@@ -5,7 +5,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
     /// </summary>
     public abstract class IgnoreGroupWindow : UIWindow
     {
-        public override bool AllowMultiple { get; } = false;
+        public override bool AllowMultiple => false;
 
         public override void OpenWindow()
         {

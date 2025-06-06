@@ -19,9 +19,9 @@ namespace UIExtensionPackage.UISystem.Core.Base
         public bool IsInteractionDisabled  => _interactionState == InteractionState.Disabled;
         public bool IsActive => _activeState == ActiveState.Enabled;
         
-        public Action OnEnabled;
-        public Action OnDisabled;
-        private void Start()
+        public event Action OnEnabled;
+        public event Action OnDisabled;
+        protected void Start()
         {
             Initialize();
         }
@@ -30,16 +30,18 @@ namespace UIExtensionPackage.UISystem.Core.Base
         {
             if (IsInitialized) return;
             IsInitialized = true;
-            AttachEvents();
-
+            
+            
             if (this is IWithSetup setup)
             {
                 setup.SetUp();
-            }
+            }            
+            
+            AttachEvents();
 
+            
             Enable();
             SetInteractionState(InteractionState.None);
-            
         }
 
         /// <summary>
@@ -60,6 +62,7 @@ namespace UIExtensionPackage.UISystem.Core.Base
             if (IsActive) return;
             SetActiveState(ActiveState.Enabled);
             HandleEnable();
+            OnEnabled?.Invoke();
         }
 
         /// <summary>
@@ -75,6 +78,7 @@ namespace UIExtensionPackage.UISystem.Core.Base
             if (!IsActive) return;
             SetActiveState(ActiveState.Disabled);
             HandleDisable();
+            OnDisabled?.Invoke();
         }
         
         /// <summary>
