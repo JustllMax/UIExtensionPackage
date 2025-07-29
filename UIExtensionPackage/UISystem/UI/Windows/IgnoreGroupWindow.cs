@@ -10,7 +10,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         public override void OpenWindow()
         {
             base.OpenWindow();
-            CanvasGroup.ignoreParentGroups = true;
+            CanvasGroup.SetIgnoreParentGroup(true);
         }
     }
 }

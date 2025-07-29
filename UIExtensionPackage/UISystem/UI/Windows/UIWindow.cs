@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NaughtyAttributes;
 using UIExtensionPackage.UISystem.Core.Base;
+using UIExtensionPackage.UISystem.Core.Components;
 using UIExtensionPackage.UISystem.UI.Components;
 using UIExtensionPackage.UISystem.Core.Interfaces;
 using UIExtensionPackage.UISystem.UI.Windows.Interfaces;
@@ -14,12 +15,12 @@ namespace UIExtensionPackage.UISystem.UI.Windows
     /// <summary>
     /// Class represents an instance of UI Window.
     /// </summary>
-    [RequireComponent(typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster))]
+    [RequireComponent(typeof(Canvas), typeof(CanvasGroupComponent), typeof(GraphicRaycaster))]
     public abstract class UIWindow : UIObject, IClickable, IWindow, IWithSetup
     {
         [Foldout("Config")][SerializeField] private RenderMode _canvasRenderMode = RenderMode.ScreenSpaceOverlay;
         [Foldout("Config")][SerializeField] private Canvas _canvas;
-        [Foldout("Config")][SerializeField] private CanvasGroup _canvasGroup;
+        [Foldout("Config")][SerializeField] private CanvasGroupComponent _canvasGroupComponent;
         [Foldout("Config")][SerializeField] private bool _isDraggable;
         [Foldout("Config")][SerializeField, ShowIf(nameof(_isDraggable))] 
             private bool _resetPositionOnDragEnd = true;
@@ -29,7 +30,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
         [Foldout("Debug")][SerializeField, ReadOnly] 
             List<UIPanel> _uiPanels = new();
         
-        protected CanvasGroup CanvasGroup => _canvasGroup;
+        protected CanvasGroupComponent CanvasGroup => _canvasGroupComponent;
         public WindowStack Stack { get; set; }
         public DraggableUIComponent DraggableUIComponent => _draggableUIComponent;
         public bool CanBeDragged => _draggableUIComponent.CanBeDragged;
@@ -71,25 +72,11 @@ namespace UIExtensionPackage.UISystem.UI.Windows
                 _draggableUIComponent.Init(transform, _resetPositionOnDragEnd);
             }
         }
+        
+        public void Show() => _canvasGroupComponent.Show();
+        
+        public void Hide() => _canvasGroupComponent.Hide();
 
-        /// <summary>
-        /// Method makes canvas visible and interactable
-        /// </summary>
-        public void Show()
-        {
-            _canvasGroup.alpha = 1;
-            _canvasGroup.interactable = true;
-            _canvasGroup.blocksRaycasts = true;
-        }
-        /// <summary>
-        /// Method makes canvas invisible and not interactable
-        /// </summary>
-        public void Hide()
-        {
-            _canvasGroup.alpha = 0;
-            _canvasGroup.interactable = false;
-            _canvasGroup.blocksRaycasts = false;
-        }
 
 
         public void OnClicked(PointerEventData eventData) => OnClickedHandle();
@@ -183,7 +170,7 @@ namespace UIExtensionPackage.UISystem.UI.Windows
 
         protected virtual void OnValidate()
         {
-            if(!_canvasGroup)_canvasGroup = GetComponent<CanvasGroup>();
+            if(!_canvasGroupComponent)_canvasGroupComponent = GetComponent<CanvasGroupComponent>();
             if(!_canvas) _canvas = GetComponent<Canvas>();
             _canvas.renderMode = _canvasRenderMode;
         }

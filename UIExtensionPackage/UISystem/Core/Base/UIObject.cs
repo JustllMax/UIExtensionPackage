@@ -9,7 +9,7 @@ namespace UIExtensionPackage.UISystem.Core.Base
     /// <summary>
     /// Class representing any object in UI.
     /// </summary>
-    public abstract class UIObject : MonoBehaviour, IInitializable
+    public abstract class UIObject : MonoBehaviour
     {
         [Foldout("Debug")][SerializeField, ReadOnly] private ActiveState _activeState = ActiveState.Enabled;
         [Foldout("Debug")][SerializeField, ReadOnly] private InteractionState _interactionState = InteractionState.None;
@@ -23,10 +23,10 @@ namespace UIExtensionPackage.UISystem.Core.Base
         public event Action OnDisabled;
         protected void Start()
         {
-            Initialize();
+            InitializeAtStart();
         }
 
-        public void Initialize()
+        private void InitializeAtStart()
         {
             if (IsInitialized) return;
             IsInitialized = true;

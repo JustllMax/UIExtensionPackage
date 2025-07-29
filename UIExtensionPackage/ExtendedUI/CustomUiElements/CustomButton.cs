@@ -17,7 +17,7 @@ namespace UIExtensionPackage.ExtendedUI.CustomUIElements
         [SerializeField] TargetGraphicData[] _targetGraphics; 
         
         // Cast interactable bool to ActiveState
-        private ActiveState ActiveState =>interactable ? ActiveState.Enabled : ActiveState.Disabled;
+        private ActiveState ActiveState => interactable ? ActiveState.Enabled : ActiveState.Disabled;
         // Cast default SelectionState to InteractionState
         private InteractionState InteractionState => (InteractionState)currentSelectionState;
         protected override void DoStateTransition(SelectionState state, bool instant)
